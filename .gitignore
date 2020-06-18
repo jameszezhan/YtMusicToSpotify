@@ -1,6 +1,8 @@
 ### Java ###
 *.class
-
+.env
+.idea/
+client_secret*
 # BlueJ files
 *.ctxt
 
