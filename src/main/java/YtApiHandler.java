@@ -85,25 +85,20 @@ public class YtApiHandler {
         }
     }
 
-    public static JSONArray processReturnJson(){
+    public static JSONArray processReturnJson() throws ParseException, IOException{
         JSONParser jsonParser = new JSONParser();
-        try (FileReader reader = new FileReader("dummyReturnFromYt.json")){
-            JSONObject dummy = (JSONObject) jsonParser.parse(reader);
-            JSONArray items = (JSONArray) dummy.get("items");
-            Iterator<JSONObject> iterator = items.iterator();
-            JSONArray songList = new JSONArray();
-            while(iterator.hasNext()){
-                JSONObject itemInfo = (JSONObject) iterator.next().get("snippet");
-                String title = (String) itemInfo.get("title");
-                songList.add(title);
-            }
-            return songList;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        JSONArray songList = new JSONArray();
+
+        FileReader reader = new FileReader("dummyReturnFromYt.json");
+        JSONObject dummy = (JSONObject) jsonParser.parse(reader);
+        JSONArray items = (JSONArray) dummy.get("items");
+        Iterator<JSONObject> iterator = items.iterator();
+        while(iterator.hasNext()){
+            JSONObject itemInfo = (JSONObject) iterator.next().get("snippet");
+            String title = (String) itemInfo.get("title");
+            songList.add(title);
         }
+
+        return songList;
     }
 }
