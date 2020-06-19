@@ -1,15 +1,17 @@
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
-
 import java.io.FileInputStream;
+
+import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 import org.apache.hc.core5.http.ParseException;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.*;
 
 public class SpotifyApiHandler {
     static String SPOTIFY_CLIENT_ID;
@@ -63,9 +65,21 @@ public class SpotifyApiHandler {
             System.out.println("Async operation cancelled.");
         }
     }
-    public static void start() {
-        clientCredentials_Sync();
+
+    public static void getAndSetAccessToken() {
         clientCredentials_Async();
     }
 
+    public static void searchTrack(String query) throws ParseException, SpotifyWebApiException, IOException {
+        final Paging<Track> trackPaging= spotifyApi.searchTracks(query).build().execute();
+        final Track[] tracks = trackPaging.getItems();
+        for(int i = 0; i< tracks.length; i ++){
+            Track track = tracks[i];
+            String title = track.getName();
+            ArtistSimplified[] artist = track.getArtists();
+            String id = track.getId();
+            System.out.println(title);
+        }
+        System.out.println("Total: " + trackPaging.getTotal());
+    }
 }
