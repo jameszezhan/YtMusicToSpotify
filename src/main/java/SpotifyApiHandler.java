@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 import org.apache.hc.core5.http.ParseException;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class SpotifyApiHandler {
@@ -67,19 +67,52 @@ public class SpotifyApiHandler {
     }
 
     public static void getAndSetAccessToken() {
-        clientCredentials_Async();
+        if (spotifyApi.getAccessToken() == null){
+            clientCredentials_Async();
+        }
     }
 
-    public static void searchTrack(String query) throws ParseException, SpotifyWebApiException, IOException {
-        final Paging<Track> trackPaging= spotifyApi.searchTracks(query).build().execute();
-        final Track[] tracks = trackPaging.getItems();
-        for(int i = 0; i< tracks.length; i ++){
-            Track track = tracks[i];
-            String title = track.getName();
-            ArtistSimplified[] artist = track.getArtists();
-            String id = track.getId();
-            System.out.println(title);
+    /**
+     * Search specific track (song)
+     * @param ytTrackName
+     * @throws ParseException
+     * @throws SpotifyWebApiException
+     * @throws IOException
+     */
+    public static BaseTrack searchTrack(String ytTrackName)  {
+        try{
+            final Paging<Track> trackPaging= spotifyApi.searchTracks(ytTrackName).build().execute();
+            final Track[] tracks = trackPaging.getItems();
+            for(int i = 0; i< tracks.length; i ++){
+                Track track = tracks[i];
+                String spTrackName = track.getName();
+
+                // If track names are different, skip.
+                if (!spTrackName.toLowerCase().equals(ytTrackName.toLowerCase())){
+                    continue;
+                }else{
+                    String spTrackId = track.getId();
+
+                    ArrayList<String> spArtistsArrayList = new ArrayList<String>();
+                    BaseTrack spTrack = new BaseTrack(spTrackName, spArtistsArrayList, spTrackId, "Spotify");
+                    return spTrack;
+                }
+            }
+        }catch(ParseException | SpotifyWebApiException | IOException e){
+            e.printStackTrace();
         }
-        System.out.println("Total: " + trackPaging.getTotal());
+        return null;
+    }
+
+    public static ArrayList<BaseTrack> searchTracks(ArrayList<BaseTrack> ytTracks){
+        ArrayList<BaseTrack> spTracks = new ArrayList<BaseTrack>();
+        for(int i = 0; i < ytTracks.size(); i++){
+            BaseTrack ytTrack = ytTracks.get(i);
+            BaseTrack spTrack = searchTrack(ytTrack.trackName);
+            if(!Objects.equals(spTrack, null)){
+                spTracks.add(spTrack);
+            }
+        }
+        return spTracks;
     }
 }

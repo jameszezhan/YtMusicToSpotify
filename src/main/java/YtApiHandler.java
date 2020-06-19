@@ -16,6 +16,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -85,9 +86,9 @@ public class YtApiHandler {
         }
     }
 
-    public static JSONArray processReturnJson() throws ParseException, IOException{
+    public static ArrayList<BaseTrack> processReturnJson() throws ParseException, IOException{
         JSONParser jsonParser = new JSONParser();
-        JSONArray songList = new JSONArray();
+        ArrayList<BaseTrack> songArrayList = new ArrayList<BaseTrack>();
 
         FileReader reader = new FileReader("dummyReturnFromYt.json");
         JSONObject dummy = (JSONObject) jsonParser.parse(reader);
@@ -95,10 +96,10 @@ public class YtApiHandler {
         Iterator<JSONObject> iterator = items.iterator();
         while(iterator.hasNext()){
             JSONObject itemInfo = (JSONObject) iterator.next().get("snippet");
+            String id = (String) iterator.next().get("id");
             String title = (String) itemInfo.get("title");
-            songList.add(title);
+            songArrayList.add(new BaseTrack(title, new ArrayList<String>(), id, "YouTube"));
         }
-
-        return songList;
+        return songArrayList;
     }
 }

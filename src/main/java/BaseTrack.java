@@ -1,12 +1,14 @@
+import java.util.ArrayList;
+
 public class BaseTrack {
     public String trackName;
-    public String[] trackArtists = new String[10];
+    public ArrayList<String> trackArtists = new ArrayList<String>();
     public String trackId;
     public String trackPlatform;
 
     public BaseTrack(
             String trackName,
-            String[] trackArtists,
+            ArrayList<String> trackArtists,
             String trackId,
             String trackPlatform
     ) {
