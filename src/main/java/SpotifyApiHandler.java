@@ -1,13 +1,11 @@
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
-import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 import com.wrapper.spotify.model_objects.specification.Paging;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import java.io.FileInputStream;
 
-import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 import org.apache.hc.core5.http.ParseException;
 import java.io.IOException;
 import java.util.*;
@@ -66,6 +64,10 @@ public class SpotifyApiHandler {
         }
     }
 
+    /**
+     * Use client_id and client_secret to get and set access token
+     * If access token exists, skip
+     */
     public static void getAndSetAccessToken() {
         if (spotifyApi.getAccessToken() == null){
             clientCredentials_Async();
@@ -104,6 +106,12 @@ public class SpotifyApiHandler {
         return null;
     }
 
+    /**
+     * Search multitracks and return an ArrayList of BaseTrack objects
+     * with track information from Spotify
+     * @param ytTracks
+     * @return
+     */
     public static ArrayList<BaseTrack> searchTracks(ArrayList<BaseTrack> ytTracks){
         ArrayList<BaseTrack> spTracks = new ArrayList<BaseTrack>();
         for(int i = 0; i < ytTracks.size(); i++){
