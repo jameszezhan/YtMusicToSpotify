@@ -14,7 +14,9 @@ public class Main {
 //        spotifyApiHandler.getAndSetAccessToken();
 //        ArrayList<BaseTrack> spTracks = spotifyApiHandler.searchTracks(ytTracks);
 
-        SpotifyApiHandlerForUser spotifyApiHandlerForUser = new SpotifyApiHandlerForUser("test");
-        spotifyApiHandlerForUser.test();
+        SpotifyApiHandlerForUser spotifyApiHandlerForUser = new SpotifyApiHandlerForUser();
+        spotifyApiHandlerForUser.createPlaylist("MIGRATION");
+
+        System.exit(0);
     }
 }
