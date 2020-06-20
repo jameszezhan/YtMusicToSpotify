@@ -114,9 +114,24 @@ public class SpotifyApiHandlerForUser {
      * Create a public playlist
      * @param name
      */
-    public void createPlaylist(String name) {
+    public String createPlaylist(String name) {
         try{
             final Playlist playlist = spotifyApi.createPlaylist(SPOTIFY_USER_ID, name).build().execute();
+            return playlist.getId();
+        } catch (ParseException | SpotifyWebApiException | IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
+    /**
+     * Add track to playlist
+     */
+    public void addTrackToPlaylist(String playlistId, String[] trackUris) {
+        try{
+            // "spotify:track:track_id"
+            spotifyApi.addItemsToPlaylist(playlistId, trackUris).build().execute();
         } catch (ParseException | SpotifyWebApiException | IOException e){
             e.printStackTrace();
             System.exit(1);
