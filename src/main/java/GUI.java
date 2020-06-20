@@ -6,26 +6,31 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-public class GUI extends JFrame implements ActionListener, ItemListener {
-    private final JPanel panel;
-//    private final ScrollPane sPanel;
+public class GUI implements ActionListener, ItemListener {
+    JFrame frame;
+    JPanel panel;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new GUI();
+            }
+        });
+    }
 
     public GUI() throws HeadlessException {
-        super("GUI");
+        frame = new JFrame();
         panel = new JPanel();
-        add(panel);
+        frame.setSize(500,600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.add(panel);
 
-//        sPanel = new ScrollPane();
-//        add(sPanel);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         makeButton("Fetch playlist from YouTube");
-        pack();
-        setVisible(true);
     }
 
     private JButton makeButton(String caption) {
         JButton button = new JButton(caption);
+        button.setBounds(10,20,400,30);
         button.setActionCommand(caption);
         button.addActionListener(this);
         panel.add(button);
@@ -39,19 +44,11 @@ public class GUI extends JFrame implements ActionListener, ItemListener {
 
         for(int i = 0; i< dummy.size(); i++){
             JCheckBox checkbox = new JCheckBox(dummy.get(i));
+            checkbox.setBounds(10, 60, 400, 30);
             checkbox.setSelected(true);
             checkbox.addItemListener(this);
             panel.add(checkbox);
         }
-        pack();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new GUI();
-            }
-        });
     }
 
     public void actionPerformed(ActionEvent actionEvent) {
