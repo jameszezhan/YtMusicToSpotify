@@ -57,12 +57,6 @@ public class SpotifyApiHandlerForUser {
                 .setClientId(SPOTIFY_CLIENT_ID)
                 .setClientSecret(SPOTIFY_CLIENT_SECRET)
                 .build();
-
-        /** Authorization */
-        authorizationAndGetAccessCode();
-
-        /** Set user_id*/
-        fetchUserId();
     }
 
     /**
@@ -91,6 +85,8 @@ public class SpotifyApiHandlerForUser {
             refreshToken = credential.getRefreshToken();
             spotifyApi.setAccessToken(accessToken);
             spotifyApi.setRefreshToken(refreshToken);
+
+            fetchUserId();
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             System.exit(1);

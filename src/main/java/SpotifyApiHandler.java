@@ -7,6 +7,8 @@ import com.wrapper.spotify.requests.authorization.client_credentials.ClientCrede
 import java.io.FileInputStream;
 
 import org.apache.hc.core5.http.ParseException;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -17,18 +19,23 @@ public class SpotifyApiHandler {
     static SpotifyApi spotifyApi;
     static ClientCredentialsRequest clientCredentialsRequest;
 
-    public SpotifyApiHandler() throws IOException {
-        Properties properties = new Properties();
-        FileInputStream in = new FileInputStream(".env");
-        properties.load(in);
-        in.close();
-        SPOTIFY_CLIENT_ID = properties.getProperty("spotify_client_id");
-        SPOTIFY_CLIENT_SECRET = properties.getProperty("spotify_client_secret");
-        spotifyApi = new SpotifyApi.Builder()
-                .setClientId(SPOTIFY_CLIENT_ID)
-                .setClientSecret(SPOTIFY_CLIENT_SECRET)
-                .build();
-        clientCredentialsRequest = spotifyApi.clientCredentials().build();
+    public SpotifyApiHandler() {
+        try{
+            Properties properties = new Properties();
+            FileInputStream in = new FileInputStream(".env");
+            properties.load(in);
+            in.close();
+            SPOTIFY_CLIENT_ID = properties.getProperty("spotify_client_id");
+            SPOTIFY_CLIENT_SECRET = properties.getProperty("spotify_client_secret");
+            spotifyApi = new SpotifyApi.Builder()
+                    .setClientId(SPOTIFY_CLIENT_ID)
+                    .setClientSecret(SPOTIFY_CLIENT_SECRET)
+                    .build();
+            clientCredentialsRequest = spotifyApi.clientCredentials().build();
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public static void clientCredentials_Sync() {
