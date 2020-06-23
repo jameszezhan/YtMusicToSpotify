@@ -119,13 +119,16 @@ public class SpotifyApiHandler {
      * @param ytTracks
      * @return
      */
-    public static ArrayList<BaseTrack> searchTracks(ArrayList<BaseTrack> ytTracks){
-        ArrayList<BaseTrack> spTracks = new ArrayList<BaseTrack>();
-        for(int i = 0; i < ytTracks.size(); i++){
-            BaseTrack ytTrack = ytTracks.get(i);
+    public static HashMap<String, BaseTrack> searchTracks(HashMap<String, BaseTrack> ytTracks){
+        HashMap<String, BaseTrack> spTracks = new HashMap<String, BaseTrack>();
+        for(Map.Entry entry: ytTracks.entrySet()){
+            BaseTrack ytTrack = (BaseTrack) entry.getValue();
+            if(ytTrack.trackActionStatus == false){
+                continue;
+            }
             BaseTrack spTrack = searchTrack(ytTrack.trackName);
             if(!Objects.equals(spTrack, null)){
-                spTracks.add(spTrack);
+                spTracks.put(spTrack.trackId, spTrack);
             }
         }
         return spTracks;

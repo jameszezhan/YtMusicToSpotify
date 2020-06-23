@@ -76,7 +76,7 @@ public class YtApiHandler {
      *
      * @throws GeneralSecurityException, IOException, GoogleJsonResponseException
      */
-    public static ArrayList<BaseTrack> fetchLikedTracks(){
+    public static HashMap<String, BaseTrack> fetchLikedTracks(){
         while (youtubeService == null){
             authorizeAndSetService();
         }
@@ -93,21 +93,21 @@ public class YtApiHandler {
         return null;
     }
 
-    public static ArrayList<BaseTrack> processReturn(List<Video> ytTracks){
-        ArrayList<BaseTrack> songArrayList = new ArrayList<BaseTrack>();
+    public static HashMap<String, BaseTrack> processReturn(List<Video> ytTracks){
+        HashMap<String, BaseTrack> ytHashMap = new HashMap<String, BaseTrack>();
         for(int i = 0; i < ytTracks.size(); i ++){
             Video track = ytTracks.get(i);
             String id = track.getId();
             VideoSnippet videoSnippet = track.getSnippet();
             String title = videoSnippet.getTitle();
-            songArrayList.add(new BaseTrack(title, new ArrayList<String>(), id, "YouTube"));
+            ytHashMap.put(id, new BaseTrack(title, new ArrayList<String>(), id, "YouTube"));
         }
-        return songArrayList;
+        return ytHashMap;
     }
 
-    public static ArrayList<BaseTrack> processReturnJson() throws ParseException, IOException{
+    public static HashMap<String, BaseTrack> processReturnJson() throws ParseException, IOException{
         JSONParser jsonParser = new JSONParser();
-        ArrayList<BaseTrack> songArrayList = new ArrayList<BaseTrack>();
+        HashMap<String, BaseTrack> ytHashMap = new HashMap<String, BaseTrack>();
 
         FileReader reader = new FileReader("dummyReturnFromYt.json");
         JSONObject dummy = (JSONObject) jsonParser.parse(reader);
@@ -117,8 +117,8 @@ public class YtApiHandler {
             JSONObject itemInfo = (JSONObject) iterator.next().get("snippet");
             String id = (String) iterator.next().get("id");
             String title = (String) itemInfo.get("title");
-            songArrayList.add(new BaseTrack(title, new ArrayList<String>(), id, "YouTube"));
+            ytHashMap.put(id, new BaseTrack(title, new ArrayList<String>(), id, "YouTube"));
         }
-        return songArrayList;
+        return ytHashMap;
     }
 }

@@ -18,9 +18,7 @@ import org.apache.hc.core5.http.ParseException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This is a Spotify API handler class for user-specific api calls.
@@ -124,10 +122,15 @@ public class SpotifyApiHandlerForUser {
     /**
      * Add track to playlist
      */
-    public void addTrackToPlaylist(String playlistId, String[] trackUris) {
+    public void addTrackToPlaylist(String playlistId, HashMap<String, BaseTrack> tracks) {
         try{
             // "spotify:track:track_id"
-            spotifyApi.addItemsToPlaylist(playlistId, trackUris).build().execute();
+            ArrayList<String> spUrisArrayList = new ArrayList<String>();
+            for(BaseTrack track: tracks.values()){
+                spUrisArrayList.add("spotify:track:"+track.trackId);
+            }
+            String[] spUrisArray = new String[spUrisArrayList.size()];
+            spotifyApi.addItemsToPlaylist(playlistId, spUrisArrayList.toArray(spUrisArray)).build().execute();
         } catch (ParseException | SpotifyWebApiException | IOException e){
             e.printStackTrace();
             System.exit(1);

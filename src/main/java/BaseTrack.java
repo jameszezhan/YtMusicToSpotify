@@ -5,6 +5,7 @@ public class BaseTrack {
     public ArrayList<String> trackArtists = new ArrayList<String>();
     public String trackId;
     public String trackPlatform;
+    public Boolean trackActionStatus;
 
     public BaseTrack(
             String trackName,
@@ -16,5 +17,6 @@ public class BaseTrack {
         this.trackArtists = trackArtists;
         this.trackId = trackId;
         this.trackPlatform = trackPlatform;
+        this.trackActionStatus = true;
     }
 }

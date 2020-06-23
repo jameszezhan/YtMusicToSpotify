@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
 public class GUI implements ActionListener, ItemListener {
     JFrame frame;
@@ -15,8 +15,8 @@ public class GUI implements ActionListener, ItemListener {
     YtApiHandler ytApiHandler;
     SpotifyApiHandler spotifyApiHandler;
     SpotifyApiHandlerForUser spotifyApiHandlerForUser;
-    ArrayList<BaseTrack> ytTracks = null;
-    ArrayList<BaseTrack> spTracks = null;
+    HashMap<String, BaseTrack> ytTracks = null;
+    HashMap<String, BaseTrack> spTracks = null;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -68,19 +68,23 @@ public class GUI implements ActionListener, ItemListener {
         return textfield;
     }
 
-    private void makeList(ArrayList<BaseTrack> tracks, JPanel parentPanel){
+    private void makeList(HashMap<String, BaseTrack> tracks, JPanel parentPanel){
         if (tracks.size() == 0){
             makeTextField("No track found");
         }else{
-            for(int i = 0; i < tracks.size(); i++){
-                BaseTrack track = tracks.get(i);
-                String trackTitle = track.trackName;
+            for(Map.Entry track : tracks.entrySet()){
+                String trackKey = (String) track.getKey();
+                BaseTrack trackVal = (BaseTrack) track.getValue();
+                String trackTitle = trackVal.trackName;
                 JCheckBox checkbox = new JCheckBox(trackTitle);
-                checkbox.setActionCommand(track.trackId);
+                checkbox.setActionCommand(trackVal.trackId);
                 checkbox.setBounds(10, 60, 400, 30);
                 checkbox.setSelected(true);
                 checkbox.addItemListener(this);
                 parentPanel.add(checkbox);
+            }
+            for(int i = 0; i < tracks.size(); i++){
+
             }
         }
         panelLeft.updateUI();
@@ -109,17 +113,19 @@ public class GUI implements ActionListener, ItemListener {
             makeButton("SPProceed");
         } else if ("SPProceed" == actionEvent.getActionCommand()){
             spotifyApiHandlerForUser.authorizationAndGetAccessCode();
-            String[] spUrisArr = new String[spTracks.size()];
-            spUrisArr = spTracks.toArray(spUrisArr);
             String playlistId = spotifyApiHandlerForUser.createPlaylist("MIGRATION");
-            spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spUrisArr);
+            spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spTracks);
         }
     }
 
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
         JCheckBox cb = (JCheckBox) itemEvent.getItem();
-        System.out.println(cb.getActionCommand());
-        System.out.println(cb.getText());
+        String trackId = cb.getActionCommand();
+        if(cb.isSelected()){
+            ytTracks.get(trackId).trackActionStatus = true;
+        }else{
+            ytTracks.get(trackId).trackActionStatus = false;
+        }
     }
 }
