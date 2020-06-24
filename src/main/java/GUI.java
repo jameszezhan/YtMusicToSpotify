@@ -33,11 +33,14 @@ public class GUI implements ActionListener, ItemListener {
         frame = new JFrame();
         panel = new JPanel(new BorderLayout());
         panelBtn = new JPanel();
+        panelBtn.setName("Button Panel");
         panelBtn.setLayout(new GridLayout());
         panelLeft = new JPanel();
         panelLeft.setLayout(new BoxLayout(panelLeft, BoxLayout.Y_AXIS));
+        panelLeft.setName("Left Panel");
         panelRight = new JPanel();
         panelRight.setLayout(new BoxLayout(panelRight, BoxLayout.Y_AXIS));
+        panelRight.setName("Right Panel");
         panelBottom = new JPanel();
 
         panel.add(panelBtn, BorderLayout.NORTH);
@@ -83,9 +86,6 @@ public class GUI implements ActionListener, ItemListener {
                 checkbox.addItemListener(this);
                 parentPanel.add(checkbox);
             }
-            for(int i = 0; i < tracks.size(); i++){
-
-            }
         }
         panelLeft.updateUI();
     }
@@ -122,10 +122,23 @@ public class GUI implements ActionListener, ItemListener {
     public void itemStateChanged(ItemEvent itemEvent) {
         JCheckBox cb = (JCheckBox) itemEvent.getItem();
         String trackId = cb.getActionCommand();
-        if(cb.isSelected()){
-            ytTracks.get(trackId).trackActionStatus = true;
-        }else{
-            ytTracks.get(trackId).trackActionStatus = false;
+        Container parentContainer = cb.getParent();
+        String parentContainerName = parentContainer.getName();
+        switch (parentContainerName){
+            case "Left Container":
+                if(cb.isSelected()){
+                    ytTracks.get(trackId).trackActionStatus = true;
+                }else{
+                    ytTracks.get(trackId).trackActionStatus = false;
+                }
+                break;
+            case "Right Container":
+                if(cb.isSelected()){
+                    spTracks.get(trackId).trackActionStatus = true;
+                }else{
+                    spTracks.get(trackId).trackActionStatus = false;
+                }
+                break;
         }
     }
 }

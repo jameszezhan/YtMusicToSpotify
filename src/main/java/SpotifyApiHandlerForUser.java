@@ -127,6 +127,9 @@ public class SpotifyApiHandlerForUser {
             // "spotify:track:track_id"
             ArrayList<String> spUrisArrayList = new ArrayList<String>();
             for(BaseTrack track: tracks.values()){
+                if (track.trackActionStatus == false){
+                    continue;
+                }
                 spUrisArrayList.add("spotify:track:"+track.trackId);
             }
             String[] spUrisArray = new String[spUrisArrayList.size()];
