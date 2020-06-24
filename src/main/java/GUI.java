@@ -96,14 +96,14 @@ public class GUI implements ActionListener, ItemListener {
 
     public void actionPerformed(ActionEvent actionEvent) {
         if ("Fetch playlist from YouTube" == actionEvent.getActionCommand()){
-//            ArrayList<BaseTrack> ytTracks = ytApiHandler.fetchLikedTracks();
-            try {
-                ytTracks = ytApiHandler.processReturnJson();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ytTracks = ytApiHandler.fetchLikedTracks();
+//            try {
+//                ytTracks = ytApiHandler.processReturnJson();
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
             makeList(ytTracks, panelLeft);
             makeButton("YTProceed");
         } else if ("YTProceed" == actionEvent.getActionCommand()){

@@ -83,7 +83,7 @@ public class YtApiHandler {
         // Define and execute the API request
         try{
             YouTube.Videos.List request = youtubeService.videos().list("snippet,contentDetails,statistics");
-            VideoListResponse response = request.setMyRating("like").setMaxResults((long)10).execute();
+            VideoListResponse response = request.setMyRating("like").setMaxResults((long)100).execute();
             List<Video> ytTracks = response.getItems();
             return processReturn(ytTracks);
         } catch (IOException e){
