@@ -17,6 +17,7 @@ public class GUI implements ActionListener, ItemListener {
     SpotifyApiHandlerForUser spotifyApiHandlerForUser;
     HashMap<String, BaseTrack> ytTracks = null;
     HashMap<String, BaseTrack> spTracks = null;
+    JScrollPane scrollPanelLeft, scrollPanelRight;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -32,20 +33,31 @@ public class GUI implements ActionListener, ItemListener {
 
         frame = new JFrame();
         panel = new JPanel(new BorderLayout());
+
+        /** button panel */
         panelBtn = new JPanel();
         panelBtn.setName("Button Panel");
         panelBtn.setLayout(new GridLayout());
+        panel.add(panelBtn, BorderLayout.NORTH);
+
+        /** left panel*/
         panelLeft = new JPanel();
         panelLeft.setLayout(new BoxLayout(panelLeft, BoxLayout.Y_AXIS));
         panelLeft.setName("Left Panel");
+        scrollPanelLeft = new JScrollPane(panelLeft);
+        scrollPanelLeft.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollPanelLeft, BorderLayout.WEST);
+
+        /** right panel*/
         panelRight = new JPanel();
         panelRight.setLayout(new BoxLayout(panelRight, BoxLayout.Y_AXIS));
         panelRight.setName("Right Panel");
-        panelBottom = new JPanel();
+        scrollPanelRight = new JScrollPane(panelRight);
+        scrollPanelRight.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollPanelRight, BorderLayout.EAST);
 
-        panel.add(panelBtn, BorderLayout.NORTH);
-        panel.add(panelLeft, BorderLayout.WEST);
-        panel.add(panelRight, BorderLayout.EAST);
+        /** bottom panel*/
+        panelBottom = new JPanel();
         panel.add(panelBottom, BorderLayout.SOUTH);
 
         frame.setSize(500,600);
@@ -87,7 +99,7 @@ public class GUI implements ActionListener, ItemListener {
                 parentPanel.add(checkbox);
             }
         }
-        panelLeft.updateUI();
+        parentPanel.updateUI();
     }
 
     private void attachTo(Component child, JPanel parent){
@@ -125,14 +137,14 @@ public class GUI implements ActionListener, ItemListener {
         Container parentContainer = cb.getParent();
         String parentContainerName = parentContainer.getName();
         switch (parentContainerName){
-            case "Left Container":
+            case "Left Panel":
                 if(cb.isSelected()){
                     ytTracks.get(trackId).trackActionStatus = true;
                 }else{
                     ytTracks.get(trackId).trackActionStatus = false;
                 }
                 break;
-            case "Right Container":
+            case "Right Panel":
                 if(cb.isSelected()){
                     spTracks.get(trackId).trackActionStatus = true;
                 }else{
