@@ -123,7 +123,7 @@ public class SpotifyApiHandler {
         HashMap<String, BaseTrack> spTracks = new HashMap<String, BaseTrack>();
         for(Map.Entry entry: ytTracks.entrySet()){
             BaseTrack ytTrack = (BaseTrack) entry.getValue();
-            if(ytTrack.trackActionStatus == false){
+            if(ytTrack.trackActionStatus.equals(false)){
                 continue;
             }
             BaseTrack spTrack = searchTrack(ytTrack.trackName);
