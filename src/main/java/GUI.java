@@ -1,12 +1,9 @@
-import org.json.simple.parser.ParseException;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
 import java.util.*;
 
 public class GUI implements ActionListener, ItemListener {
@@ -16,6 +13,7 @@ public class GUI implements ActionListener, ItemListener {
     SpotifyApiHandler spotifyApiHandler;
     SpotifyApiHandlerForUser spotifyApiHandlerForUser;
     HashMap<String, BaseTrack> ytTracks = null;
+    HashMap<String, BaseTrack> ytPlaylists = null;
     HashMap<String, BaseTrack> spTracks = null;
     JScrollPane scrollPanelLeft, scrollPanelRight;
     public static void main(String[] args) {
@@ -65,13 +63,13 @@ public class GUI implements ActionListener, ItemListener {
         frame.setVisible(true);
         frame.add(panel);
 
-        makeButton("Fetch playlist from YouTube");
+        makeButton("Fetch playlist from YouTube", "btn_yt_start");
     }
 
-    private JButton makeButton(String caption) {
+    private JButton makeButton(String caption, String btnActionCommand) {
         JButton button = new JButton(caption);
+        button.setActionCommand(btnActionCommand);
         button.setBounds(10,20,400,30);
-        button.setActionCommand(caption);
         button.addActionListener(this);
         panelBtn.add(button);
         return button;
@@ -102,31 +100,39 @@ public class GUI implements ActionListener, ItemListener {
         parentPanel.updateUI();
     }
 
-    private void attachTo(Component child, JPanel parent){
-        parent.add(child);
-    }
-
     public void actionPerformed(ActionEvent actionEvent) {
-        if ("Fetch playlist from YouTube" == actionEvent.getActionCommand()){
-            ytTracks = ytApiHandler.fetchLikedTracks();
-//            try {
-//                ytTracks = ytApiHandler.processReturnJson();
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-            makeList(ytTracks, panelLeft);
-            makeButton("YTProceed");
-        } else if ("YTProceed" == actionEvent.getActionCommand()){
-            spotifyApiHandler.getAndSetAccessToken();
-            spTracks = spotifyApiHandler.searchTracks(ytTracks);
-            makeList(spTracks, panelRight);
-            makeButton("SPProceed");
-        } else if ("SPProceed" == actionEvent.getActionCommand()){
-            spotifyApiHandlerForUser.authorizationAndGetAccessCode();
-            String playlistId = spotifyApiHandlerForUser.createPlaylist("MIGRATION");
-            spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spTracks);
+        String actionCommand = actionEvent.getActionCommand();
+        switch (actionCommand){
+            case "btn_yt_start":
+                ytPlaylists = ytApiHandler.fetchAllPlaylists();
+                makeList(ytPlaylists, panelLeft);
+                makeButton("YTProceed", "btn_yt_one_fetch");
+                break;
+            case "btn_yt_one_fetch":
+                ytTracks = ytApiHandler.fetchLikedTracks();
+//                try {
+//                    ytTracks = ytApiHandler.processReturnJson();
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                makeList(ytTracks, panelLeft);
+                makeButton("YTProceed", "btn_yt_one_fetch");
+                break;
+            case "btn_yt_all_fetch":
+                break;
+            case "btn_sp_search":
+                spotifyApiHandler.getAndSetAccessToken();
+                spTracks = spotifyApiHandler.searchTracks(ytTracks);
+                makeList(spTracks, panelRight);
+                makeButton("SPProceed", "btn_sp_migrate");
+                break;
+            case "btn_sp_migrate":
+                spotifyApiHandlerForUser.authorizationAndGetAccessCode();
+                String playlistId = spotifyApiHandlerForUser.createPlaylist("MIGRATION");
+                spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spTracks);
+                break;
         }
     }
 

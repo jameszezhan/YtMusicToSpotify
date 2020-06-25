@@ -8,9 +8,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
-import com.google.api.services.youtube.model.VideoSnippet;
+import com.google.api.services.youtube.model.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -86,6 +84,30 @@ public class YtApiHandler {
             VideoListResponse response = request.setMyRating("like").setMaxResults((long)100).execute();
             List<Video> ytTracks = response.getItems();
             return processReturn(ytTracks);
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
+    /** Fetch list of all playlists */
+    public HashMap<String, BaseTrack> fetchAllPlaylists(){
+        while (youtubeService == null){
+            authorizeAndSetService();
+        }
+        try{
+            YouTube.Playlists.List request = youtubeService.playlists().list("snippet,contentDetails");
+            PlaylistListResponse response = request.setMaxResults(25L).setMine(true).execute();
+            List<Playlist> playlists = response.getItems();
+            HashMap<String, BaseTrack> ytPlaylistHashMap = new HashMap<String, BaseTrack>();
+            for(Playlist playlist: playlists){
+                String playlistId = playlist.getId();
+                PlaylistSnippet playlistSnippet = playlist.getSnippet();
+                String playlistName = playlistSnippet.getTitle();
+                ytPlaylistHashMap.put(playlistId, new BaseTrack(playlistName, new ArrayList<String>(), playlistId, "YouTube_playlist"));
+            }
+            return ytPlaylistHashMap;
         } catch (IOException e){
             e.printStackTrace();
             System.exit(1);
