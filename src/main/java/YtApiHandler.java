@@ -115,6 +115,29 @@ public class YtApiHandler {
         return null;
     }
 
+    public HashMap<String, BaseTrack> fetchTracksFromPlaylist(String playlistId){
+        while (youtubeService == null){
+            authorizeAndSetService();
+        }
+        try{
+            YouTube.PlaylistItems.List request = youtubeService.playlistItems().list("snippet,contentDetails");
+            PlaylistItemListResponse response = request.setMaxResults(100L).setPlaylistId(playlistId).execute();
+            List<PlaylistItem> playlistItems = response.getItems();
+            HashMap<String, BaseTrack> ytPlaylistHashMap = new HashMap<String, BaseTrack>();
+            for(PlaylistItem playlistItem: playlistItems){
+                String playlistItemId = playlistItem.getId();
+                PlaylistItemSnippet playlistItemSnippet = playlistItem.getSnippet();
+                String playlistItemName = playlistItemSnippet.getTitle();
+                ytPlaylistHashMap.put(playlistItemId, new BaseTrack(playlistItemName, new ArrayList<String>(), playlistItemId, "Youtube"));
+            }
+            return ytPlaylistHashMap;
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
     public static HashMap<String, BaseTrack> processReturn(List<Video> ytTracks){
         HashMap<String, BaseTrack> ytHashMap = new HashMap<String, BaseTrack>();
         for(int i = 0; i < ytTracks.size(); i ++){

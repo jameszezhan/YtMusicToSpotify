@@ -8,14 +8,14 @@ import java.util.*;
 
 public class GUI implements ActionListener, ItemListener {
     JFrame frame;
-    JPanel panel, panelBtn, panelLeft, panelRight, panelBottom;
+    JPanel panel, panelBtn, panelLeft, panelRight, panelBottom, panelCenter;
     YtApiHandler ytApiHandler;
     SpotifyApiHandler spotifyApiHandler;
     SpotifyApiHandlerForUser spotifyApiHandlerForUser;
-    HashMap<String, BaseTrack> ytTracks = null;
-    HashMap<String, BaseTrack> ytPlaylists = null;
-    HashMap<String, BaseTrack> spTracks = null;
-    JScrollPane scrollPanelLeft, scrollPanelRight;
+    HashMap<String, BaseTrack> ytTracks = new HashMap<String, BaseTrack>();
+    HashMap<String, BaseTrack> ytPlaylists = new HashMap<String, BaseTrack>();
+    HashMap<String, BaseTrack> spTracks = new HashMap<String, BaseTrack>();
+    JScrollPane scrollPanelLeft, scrollPanelRight, scrollPanelCenter;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -45,6 +45,14 @@ public class GUI implements ActionListener, ItemListener {
         scrollPanelLeft = new JScrollPane(panelLeft);
         scrollPanelLeft.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         panel.add(scrollPanelLeft, BorderLayout.WEST);
+
+        /** center panel*/
+        panelCenter = new JPanel();
+        panelCenter.setLayout(new BoxLayout(panelCenter, BoxLayout.Y_AXIS));
+        panelCenter.setName("Center Panel");
+        scrollPanelCenter = new JScrollPane(panelCenter);
+        scrollPanelCenter.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollPanelCenter, BorderLayout.CENTER);
 
         /** right panel*/
         panelRight = new JPanel();
@@ -81,7 +89,7 @@ public class GUI implements ActionListener, ItemListener {
         return textfield;
     }
 
-    private void makeList(HashMap<String, BaseTrack> tracks, JPanel parentPanel){
+    private void makeList(HashMap<String, BaseTrack> tracks, JPanel parentPanel, String actionPrefix){
         if (tracks.size() == 0){
             makeTextField("No track found");
         }else{
@@ -90,7 +98,13 @@ public class GUI implements ActionListener, ItemListener {
                 BaseTrack trackVal = (BaseTrack) track.getValue();
                 String trackTitle = trackVal.trackName;
                 JCheckBox checkbox = new JCheckBox(trackTitle);
-                checkbox.setActionCommand(trackVal.trackId);
+                /**
+                 * yt_track | track_id
+                 * yt_list | list_id
+                 * sp_track | track_id
+                 */
+                checkbox.setActionCommand(actionPrefix + " | " +trackVal.trackId);
+//                checkbox.setActionCommand(trackVal.trackId);
                 checkbox.setBounds(10, 60, 400, 30);
                 checkbox.setSelected(true);
                 checkbox.addItemListener(this);
@@ -105,11 +119,19 @@ public class GUI implements ActionListener, ItemListener {
         switch (actionCommand){
             case "btn_yt_start":
                 ytPlaylists = ytApiHandler.fetchAllPlaylists();
-                makeList(ytPlaylists, panelLeft);
+                makeList(ytPlaylists, panelLeft, "yt_list");
                 makeButton("YTProceed", "btn_yt_one_fetch");
                 break;
             case "btn_yt_one_fetch":
-                ytTracks = ytApiHandler.fetchLikedTracks();
+                for(Map.Entry playlist : ytPlaylists.entrySet()){
+                    String playlistId = (String) playlist.getKey();
+                    BaseTrack playlistItem = (BaseTrack) playlist.getValue();
+                    if(playlistItem.trackActionStatus.equals(false)){
+                        continue;
+                    }
+                    ytTracks.putAll(ytApiHandler.fetchTracksFromPlaylist(playlistId));
+                }
+//                ytTracks = ytApiHandler.fetchLikedTracks();
 //                try {
 //                    ytTracks = ytApiHandler.processReturnJson();
 //                } catch (ParseException e) {
@@ -117,15 +139,15 @@ public class GUI implements ActionListener, ItemListener {
 //                } catch (IOException e) {
 //                    e.printStackTrace();
 //                }
-                makeList(ytTracks, panelLeft);
-                makeButton("YTProceed", "btn_yt_one_fetch");
+                makeList(ytTracks, panelCenter, "yt_track");
+                makeButton("YTProceed", "btn_sp_search");
                 break;
             case "btn_yt_all_fetch":
                 break;
             case "btn_sp_search":
                 spotifyApiHandler.getAndSetAccessToken();
                 spTracks = spotifyApiHandler.searchTracks(ytTracks);
-                makeList(spTracks, panelRight);
+                makeList(spTracks, panelRight, "sp_track");
                 makeButton("SPProceed", "btn_sp_migrate");
                 break;
             case "btn_sp_migrate":
@@ -139,22 +161,29 @@ public class GUI implements ActionListener, ItemListener {
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
         JCheckBox cb = (JCheckBox) itemEvent.getItem();
-        String trackId = cb.getActionCommand();
-        Container parentContainer = cb.getParent();
-        String parentContainerName = parentContainer.getName();
-        switch (parentContainerName){
-            case "Left Panel":
+        String[] itemIdentifier = cb.getActionCommand().split(" | ");
+        String actionCode = itemIdentifier[0];
+        String itemId = itemIdentifier[2];
+        switch (actionCode){
+            case "yt_track":
                 if(cb.isSelected()){
-                    ytTracks.get(trackId).trackActionStatus = true;
+                    ytTracks.get(itemId).trackActionStatus = true;
                 }else{
-                    ytTracks.get(trackId).trackActionStatus = false;
+                    ytTracks.get(itemId).trackActionStatus = false;
                 }
                 break;
-            case "Right Panel":
+            case "yt_list":
                 if(cb.isSelected()){
-                    spTracks.get(trackId).trackActionStatus = true;
+                    ytPlaylists.get(itemId).trackActionStatus = true;
                 }else{
-                    spTracks.get(trackId).trackActionStatus = false;
+                    ytPlaylists.get(itemId).trackActionStatus = false;
+                }
+                break;
+            case "sp_track":
+                if(cb.isSelected()){
+                    spTracks.get(itemId).trackActionStatus = true;
+                }else{
+                    spTracks.get(itemId).trackActionStatus = false;
                 }
                 break;
         }
