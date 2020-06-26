@@ -73,6 +73,8 @@ public class GUI implements ActionListener, ItemListener {
         frame.add(panel);
 
         makeButton("Fetch playlist from YouTube", "btn_yt_start");
+        makeButton("Fetch playlist from YouTube", "btn_yt_edit_name");
+
     }
 
     private JButton makeButton(String caption, String btnActionCommand) {
@@ -157,6 +159,7 @@ public class GUI implements ActionListener, ItemListener {
                 makeList(ytTracks, panelCenter, "yt_track");
                 removeComponent(panelBtn, "btn_yt_one_fetch");
                 makeButton("Search tracks on Spotify", "btn_sp_search");
+                makeButton("Modify name", "btn_yt_edit_name");
                 break;
             case "btn_yt_all_fetch":
                 break;
@@ -172,6 +175,21 @@ public class GUI implements ActionListener, ItemListener {
                 String playlistId = spotifyApiHandlerForUser.createPlaylist("MIGRATION");
                 spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spTracks);
                 break;
+            case "btn_yt_edit_name":
+                JFrame frameEditName = new JFrame();
+                frameEditName.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                JPanel panelEditName = new JPanel();
+                panelEditName.setLayout(new BoxLayout(panelEditName, BoxLayout.Y_AXIS));
+                JScrollPane dialogScrollPane = new JScrollPane(panelEditName);
+                for(Map.Entry trackEntry: ytTracks.entrySet()){
+                    BaseTrack track = (BaseTrack) trackEntry.getValue();
+                    JTextField tf = new JTextField(track.trackName);
+                    panelEditName.add(tf);
+                }
+                dialogScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                frameEditName.add(dialogScrollPane);
+                frameEditName.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frameEditName.setVisible(true);
         }
     }
 
