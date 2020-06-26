@@ -15,6 +15,7 @@ public class GUI implements ActionListener, ItemListener {
     HashMap<String, BaseTrack> ytTracks = new HashMap<String, BaseTrack>();
     HashMap<String, BaseTrack> ytPlaylists = new HashMap<String, BaseTrack>();
     HashMap<String, BaseTrack> spTracks = new HashMap<String, BaseTrack>();
+    HashMap<String, JButton> buttonList = new HashMap<String, JButton>();
     JScrollPane scrollPanelLeft, scrollPanelRight, scrollPanelCenter;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -80,12 +81,17 @@ public class GUI implements ActionListener, ItemListener {
         button.setBounds(10,20,400,30);
         button.addActionListener(this);
         panelBtn.add(button);
+        buttonList.put(btnActionCommand, button);
+        panelBtn.revalidate();
+        panelBtn.repaint();
         return button;
     }
 
     private JTextField makeTextField(String content){
         JTextField textfield = new JTextField(content);
         panelLeft.add(textfield);
+        panelLeft.revalidate();
+        panelLeft.repaint();
         return textfield;
     }
 
@@ -109,9 +115,17 @@ public class GUI implements ActionListener, ItemListener {
                 checkbox.setSelected(true);
                 checkbox.addItemListener(this);
                 parentPanel.add(checkbox);
+                parentPanel.repaint();
+                parentPanel.revalidate();
             }
         }
         parentPanel.updateUI();
+    }
+
+    public void removeComponent(Container parent, String buttonCode){
+        parent.remove((JButton)buttonList.get(buttonCode));
+        parent.revalidate();
+        parent.repaint();
     }
 
     public void actionPerformed(ActionEvent actionEvent) {
@@ -120,7 +134,8 @@ public class GUI implements ActionListener, ItemListener {
             case "btn_yt_start":
                 ytPlaylists = ytApiHandler.fetchAllPlaylists();
                 makeList(ytPlaylists, panelLeft, "yt_list");
-                makeButton("YTProceed", "btn_yt_one_fetch");
+                removeComponent(panelBtn, "btn_yt_start");
+                makeButton("Fetch from YouTube", "btn_yt_one_fetch");
                 break;
             case "btn_yt_one_fetch":
                 for(Map.Entry playlist : ytPlaylists.entrySet()){
@@ -140,7 +155,8 @@ public class GUI implements ActionListener, ItemListener {
 //                    e.printStackTrace();
 //                }
                 makeList(ytTracks, panelCenter, "yt_track");
-                makeButton("YTProceed", "btn_sp_search");
+                removeComponent(panelBtn, "btn_yt_one_fetch");
+                makeButton("Search tracks on Spotify", "btn_sp_search");
                 break;
             case "btn_yt_all_fetch":
                 break;
@@ -148,7 +164,8 @@ public class GUI implements ActionListener, ItemListener {
                 spotifyApiHandler.getAndSetAccessToken();
                 spTracks = spotifyApiHandler.searchTracks(ytTracks);
                 makeList(spTracks, panelRight, "sp_track");
-                makeButton("SPProceed", "btn_sp_migrate");
+                removeComponent(panelBtn, "btn_sp_search");
+                makeButton("Proceed to migrate", "btn_sp_migrate");
                 break;
             case "btn_sp_migrate":
                 spotifyApiHandlerForUser.authorizationAndGetAccessCode();
