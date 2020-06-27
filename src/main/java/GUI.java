@@ -7,7 +7,7 @@ import java.awt.event.ItemListener;
 import java.util.*;
 
 public class GUI implements ActionListener, ItemListener {
-    JFrame frame;
+    JFrame frame, frameEditName;
     JPanel panel, panelBtn, panelLeft, panelRight, panelBottom, panelCenter;
     YtApiHandler ytApiHandler;
     SpotifyApiHandler spotifyApiHandler;
@@ -16,6 +16,7 @@ public class GUI implements ActionListener, ItemListener {
     HashMap<String, BaseTrack> ytPlaylists = new HashMap<String, BaseTrack>();
     HashMap<String, BaseTrack> spTracks = new HashMap<String, BaseTrack>();
     HashMap<String, JButton> buttonList = new HashMap<String, JButton>();
+    HashMap<String, JTextField> tracksInEdit = new HashMap<String, JTextField>();
     JScrollPane scrollPanelLeft, scrollPanelRight, scrollPanelCenter;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -73,8 +74,6 @@ public class GUI implements ActionListener, ItemListener {
         frame.add(panel);
 
         makeButton("Fetch playlist from YouTube", "btn_yt_start");
-        makeButton("Fetch playlist from YouTube", "btn_yt_edit_name");
-
     }
 
     private JButton makeButton(String caption, String btnActionCommand) {
@@ -91,6 +90,8 @@ public class GUI implements ActionListener, ItemListener {
 
     private JTextField makeTextField(String content){
         JTextField textfield = new JTextField(content);
+        textfield.setActionCommand("action-test");
+        textfield.addActionListener(this);
         panelLeft.add(textfield);
         panelLeft.revalidate();
         panelLeft.repaint();
@@ -161,8 +162,6 @@ public class GUI implements ActionListener, ItemListener {
                 makeButton("Search tracks on Spotify", "btn_sp_search");
                 makeButton("Modify name", "btn_yt_edit_name");
                 break;
-            case "btn_yt_all_fetch":
-                break;
             case "btn_sp_search":
                 spotifyApiHandler.getAndSetAccessToken();
                 spTracks = spotifyApiHandler.searchTracks(ytTracks);
@@ -176,21 +175,46 @@ public class GUI implements ActionListener, ItemListener {
                 spotifyApiHandlerForUser.addTrackToPlaylist(playlistId , spTracks);
                 break;
             case "btn_yt_edit_name":
-                JFrame frameEditName = new JFrame();
-                frameEditName.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frameEditName = new JFrame();
+                frameEditName.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 JPanel panelEditName = new JPanel();
                 panelEditName.setLayout(new BoxLayout(panelEditName, BoxLayout.Y_AXIS));
                 JScrollPane dialogScrollPane = new JScrollPane(panelEditName);
                 for(Map.Entry trackEntry: ytTracks.entrySet()){
                     BaseTrack track = (BaseTrack) trackEntry.getValue();
                     JTextField tf = new JTextField(track.trackName);
+                    tf.setActionCommand("yt_edit_name | "+ track.trackId);
+                    tf.addActionListener(this);
+                    tracksInEdit.put(track.trackId, tf);
                     panelEditName.add(tf);
                 }
                 dialogScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
                 frameEditName.add(dialogScrollPane);
                 frameEditName.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frameEditName.setVisible(true);
+                JButton submitBtn = new JButton("Submit");
+                submitBtn.setActionCommand("btn_yt_edit_submit");
+                submitBtn.addActionListener(this);
+                panelEditName.add(submitBtn);
+                break;
+            case "btn_yt_edit_submit":
+                editTracks(ytTracks);
+                panelCenter.removeAll();
+                makeList(ytTracks, panelCenter, "yt_track");
+                break;
         }
+    }
+
+    public void editTracks(HashMap<String, BaseTrack> tracks){
+        for(Map.Entry tfEntry : tracksInEdit.entrySet()){
+            String trackId = (String) tfEntry.getKey();
+            JTextField trackTF = (JTextField) tfEntry.getValue();
+            if (!tracks.get(trackId).trackName.equals(trackTF.getText())){
+                tracks.get(trackId).trackName = trackTF.getText();
+            }
+        }
+        tracksInEdit = null;
+        frameEditName.dispose();
     }
 
     @Override
