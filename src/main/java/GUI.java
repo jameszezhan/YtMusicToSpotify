@@ -30,6 +30,7 @@ public class GUI implements ActionListener, ItemListener {
         ytApiHandler = new YtApiHandler();
         spotifyApiHandler = new SpotifyApiHandler();
         spotifyApiHandlerForUser = new SpotifyApiHandlerForUser();
+        ytPlaylists.put("liked_videos", new BaseTrack("Liked Videos", new ArrayList<String>(), "liked_videos", "Youtube_Liked_Placeholder"));
 
         frame = new JFrame();
         panel = new JPanel(new BorderLayout());
@@ -103,17 +104,14 @@ public class GUI implements ActionListener, ItemListener {
             makeTextField("No track found");
         }else{
             for(Map.Entry track : tracks.entrySet()){
-                String trackKey = (String) track.getKey();
                 BaseTrack trackVal = (BaseTrack) track.getValue();
-                String trackTitle = trackVal.trackName;
-                JCheckBox checkbox = new JCheckBox(trackTitle);
+                JCheckBox checkbox = new JCheckBox(trackVal.trackName);
                 /**
                  * yt_track | track_id
                  * yt_list | list_id
                  * sp_track | track_id
                  */
                 checkbox.setActionCommand(actionPrefix + " | " +trackVal.trackId);
-//                checkbox.setActionCommand(trackVal.trackId);
                 checkbox.setBounds(10, 60, 400, 30);
                 checkbox.setSelected(true);
                 checkbox.addItemListener(this);
@@ -135,7 +133,7 @@ public class GUI implements ActionListener, ItemListener {
         String actionCommand = actionEvent.getActionCommand();
         switch (actionCommand){
             case "btn_yt_start":
-                ytPlaylists = ytApiHandler.fetchAllPlaylists();
+                ytPlaylists.putAll(ytApiHandler.fetchAllPlaylists());
                 makeList(ytPlaylists, panelLeft, "yt_list");
                 removeComponent(panelBtn, "btn_yt_start");
                 makeButton("Fetch from YouTube", "btn_yt_one_fetch");
@@ -145,6 +143,10 @@ public class GUI implements ActionListener, ItemListener {
                     String playlistId = (String) playlist.getKey();
                     BaseTrack playlistItem = (BaseTrack) playlist.getValue();
                     if(playlistItem.trackActionStatus.equals(false)){
+                        continue;
+                    }
+                    if(playlistItem.trackId.equals("liked_videos")){
+                        ytTracks.putAll(ytApiHandler.fetchLikedTracks());
                         continue;
                     }
                     ytTracks.putAll(ytApiHandler.fetchTracksFromPlaylist(playlistId));
